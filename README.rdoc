@@ -1,0 +1,143 @@
+== README
+
+rvm current 2.2.3@rails4
+
+rails new <name> -T -B
+
+echo '2.2.3' > .ruby-version
+
+echo 'davinci_coders' > .ruby-gemset
+
+cd .
+
+gem 'rspec-rails'
+gem 'guard-bundler'
+gem 'guard-rspec'
+gem'factory_girl_rails'
+gem 'capybara'
+gem 'geocoder'
+gem 'bootstrap-generators'
+
+rails g bootstrap:install
+
+rails g scaffold User latitude:float longitude:float name:string address:string tittle:string
+
+rake db:migrate
+
+rails s
+
+route =>
+      root 'users#index'
+
+app/model/user.rb =>
+      geocoded_by :address
+      after_validation :geocode
+
+Add name, address, title
+
+test
+
+add several users
+
+https://github.com/apneadiving/Google-Maps-for-Rails
+
+add gem 'gmaps4rails'
+
+bundle
+
+Add a div to bear your map, example: (index.html.erb) end
+    <div style='width: 800px;'>
+      <div id="map" style='width: 800px; height: 400px;'></div>
+      </div>
+
+Insert google scripts in your dom: (views/users.index.html.erb) very top
+      <script src="//maps.google.com/maps/api/js?v=3.18&sensor=false&client=&key=&libraries=geometry&language=&hl=&region="></script>
+      <script src="//google-maps-utility-library-v3.googlecode.com/svn/tags/markerclustererplus/2.0.14/src/markerclusterer_packed.js"></script>
+      <script src='//google-maps-utility-library-v3.googlecode.com/svn/tags/infobox/1.1.9/src/infobox_packed.js' type='text/javascript'></script> <!-- only if you need custom infoboxes -->
+
+open underscorejs.org
+
+Downloads -> product version (1.8.3)
+
+copy content
+
+create file underscore.js
+      vendor/assets/javascript/underscore.js
+
+paste content
+
+Javascript source code | pipeline
+      paste
+            //= require underscore
+            //= require gmaps/google
+      into app/assets/javascripts/application.js
+
+If you don't have asset pipeline, you'll need to import the js OR coffee files:
+      (commandline)
+      rails g gmaps4rails:copy_js
+
+
+create map
+  paste content to index.html.erb (end)
+      handler = Gmaps.build('Google');
+      handler.buildMap({ provider: {}, internal: {id: 'map'}}, function(){
+        markers = handler.addMarkers([
+          {
+            "lat": 0,
+            "lng": 0,
+            "picture": {
+              "url": "http://people.mozilla.com/~faaborg/files/shiretoko/firefoxIcon/firefox-32.png",
+              "width":  32,
+              "height": 32
+            },
+            "infowindow": "hello!"
+          }
+        ]);
+        handler.bounds.extendWith(markers);
+        handler.fitMapToBounds();
+      });
+
+must see a map on the page
+
+must add markers
+
+generate json
+  https://github.com/apneadiving/Google-Maps-for-Rails
+  replase marker =..... with
+  markers = handler.addMarkers(<%=raw @hash.to_json %>);
+
+  result =>
+
+    handler = Gmaps.build('Google');
+    handler.buildMap({ provider: {}, internal: {id: 'map'}}, function(){
+      markers = handler.addMarkers(<%=raw @hash.to_json %>);;
+      handler.bounds.extendWith(markers);
+      handler.fitMapToBounds();
+    });
+
+In controller add to index (after Users.all)
+  @hash = Gmaps4rails.build_markers(@users) do |user, marker|
+    marker.lat user.latitude
+    marker.lng user.longitude
+  end
+
+to add title on the map add
+  marker.infowindow user.title
+  =>
+      @hash = Gmaps4rails.build_markers(@users) do |user, marker|
+        marker.lat user.latitude
+        marker.lng user.longitude
+        marker.infowindow user.title
+      end
+
+or change title to name
+
+add API styling
+
+in http://gmaps-samples-v3.googlecode.com/svn/trunk/styledmaps/wizard/index.html?utm_medium=twitter
+generate new looks
+
+copy generated JSON
+
+add in index into brackets provider[]
+  style: <paste>
